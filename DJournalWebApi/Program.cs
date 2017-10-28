@@ -19,7 +19,9 @@ namespace DJournalWebApi
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((opt) => { opt.AddJsonFile("appsettings.json"); })
                 .UseStartup<Startup>()
+                
                 .Build();
     }
 }
