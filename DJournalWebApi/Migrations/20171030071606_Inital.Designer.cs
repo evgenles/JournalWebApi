@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System;
 
 namespace DJournalWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20171028075501_Inital")]
+    [Migration("20171030071606_Inital")]
     partial class Inital
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,9 +67,9 @@ namespace DJournalWebApi.Migrations
                     b.Property<Guid>("GroupSheetId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("GroupId");
+                    b.Property<Guid?>("GroupId");
 
-                    b.Property<Guid>("SheetId");
+                    b.Property<Guid?>("SheetId");
 
                     b.HasKey("GroupSheetId");
 
@@ -120,9 +121,9 @@ namespace DJournalWebApi.Migrations
                     b.Property<Guid>("SheetStudentsId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("SheetId");
+                    b.Property<Guid?>("SheetId");
 
-                    b.Property<Guid>("StudentId");
+                    b.Property<Guid?>("StudentId");
 
                     b.HasKey("SheetStudentsId");
 
@@ -222,6 +223,9 @@ namespace DJournalWebApi.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
+
                     b.Property<string>("Name")
                         .HasMaxLength(256);
 
@@ -236,6 +240,8 @@ namespace DJournalWebApi.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRole<Guid>");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -319,6 +325,16 @@ namespace DJournalWebApi.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("DJournalWebApi.Model.Role", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>");
+
+
+                    b.ToTable("Role");
+
+                    b.HasDiscriminator().HasValue("Role");
+                });
+
             modelBuilder.Entity("DJournalWebApi.Model.Cell", b =>
                 {
                     b.HasOne("DJournalWebApi.Model.SheetDates", "SheetDates")
@@ -341,8 +357,7 @@ namespace DJournalWebApi.Migrations
                 {
                     b.HasOne("DJournalWebApi.Model.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("DJournalWebApi.Model.Sheet", "Sheet")
                         .WithMany("GroupSheets")

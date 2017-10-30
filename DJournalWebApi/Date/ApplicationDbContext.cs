@@ -12,6 +12,7 @@ namespace DJournalWebApi.Date
     public class ApplicationDbContext : IdentityDbContext<Teacher, IdentityRole<Guid>, Guid>
     {
         public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Cell> Cells { get; set; }
         public DbSet<GroupSheet> GroupSheets { get; set; }

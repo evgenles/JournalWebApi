@@ -12,6 +12,8 @@ using DJournalWebApi.Date;
 using Microsoft.EntityFrameworkCore;
 using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DJournalWebApi
 {
@@ -32,8 +34,23 @@ namespace DJournalWebApi
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddIdentity<Teacher, Role>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddAuthentication()
+                  .AddJwtBearer(cfg =>
+                  {
+                      cfg.RequireHttpsMetadata = false;
+                      cfg.SaveToken = true;
 
-            
+                      cfg.TokenValidationParameters = new TokenValidationParameters()
+                      {
+                          ValidIssuer = AuthOptions.ISSUER,
+                          ValidateLifetime = true,
+                          IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                          ValidateIssuerSigningKey = true
+                      };
+
+                  });
             services.AddMvc();
         }
 
@@ -43,8 +60,12 @@ namespace DJournalWebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
+                app.UseDatabaseErrorPage();
             }
+            app.UseAuthentication();
 
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }

@@ -15,6 +15,7 @@ namespace DJournalWebApi.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
@@ -230,8 +231,8 @@ namespace DJournalWebApi.Migrations
                 columns: table => new
                 {
                     GroupSheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -241,7 +242,7 @@ namespace DJournalWebApi.Migrations
                         column: x => x.GroupId,
                         principalTable: "Groups",
                         principalColumn: "GroupId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_GroupSheets_Sheets_SheetId",
                         column: x => x.SheetId,
@@ -274,8 +275,8 @@ namespace DJournalWebApi.Migrations
                 columns: table => new
                 {
                     SheetStudentsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    SheetId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {

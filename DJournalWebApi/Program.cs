@@ -7,6 +7,9 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using DJournalWebApi.Date;
+using Microsoft.AspNetCore.Identity;
 
 namespace DJournalWebApi
 {
@@ -14,14 +17,23 @@ namespace DJournalWebApi
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var host = BuildWebHost(args);
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var env = services.GetRequiredService<IHostingEnvironment>();
+                var context = services.GetRequiredService<ApplicationDbContext>();
+                var userManager = services.GetRequiredService<UserManager<Model.Teacher>>();
+                Initializer.Initialize(context, userManager).Wait();
+            }
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((opt) => { opt.AddJsonFile("appsettings.json"); })
                 .UseStartup<Startup>()
-                
+
                 .Build();
     }
 }
