@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using DJournalWebApi.Date;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DJournalWebApi.Controllers
 {
@@ -12,16 +9,16 @@ namespace DJournalWebApi.Controllers
     [Route("api/subject")]
     public class SubjectController : Controller
     {
-        private readonly ApplicationDbContext context;
-        public SubjectController(ApplicationDbContext _context)
+        private readonly ApplicationDbContext _context;
+
+        public SubjectController(ApplicationDbContext context)
         {
-            context = _context;
+            _context = context;
         }
 
-        public async Task<string> Index([FromBody] List<string> groups)
+        private async Task<string> Index([FromBody] List<string> groups)
         {
             return "";
         }
-
     }
 }

@@ -1,101 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using DJournalWebApi.Model;
 using System.IdentityModel.Tokens.Jwt;
-using DJournalWebApi.Date;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+using DJournalWebApi.Date;
+using DJournalWebApi.Model;
+using DJournalWebApi.Model.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
     [Route("api/account")]
-    public class AccountController : Controller
+    public class AccountController : ApiController
     {
-        private readonly UserManager<Teacher> userManager;
-        private readonly SignInManager<Teacher> signManager;
+        private readonly SignInManager<Teacher> _signManager;
+        private readonly UserManager<Teacher> _userManager;
 
-        public AccountController(UserManager<Teacher> _userManager, SignInManager<Teacher> _signManager)
+        public AccountController(UserManager<Teacher> userManager, SignInManager<Teacher> signManager)
         {
-            userManager = _userManager;
-            signManager = _signManager;
+            _userManager = userManager;
+            _signManager = signManager;
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [Route("login")]
-        public async Task<string> Login([FromBody] Model.ViewModel.UserViewModel data)
+        public async Task<IActionResult> Login([FromBody] UserViewModel data)
         {
             var identity = await GetIdentity(data.login, data.password);
-            if (identity == null)
-            {
-                return Helpers.JsonObj.FormJson("401", "", "Invalid username or password.");
-            }
+            if (identity == null) return Json(401, "", "Invalid username or password.");
 
             var now = DateTime.UtcNow;
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
-                    );
+                issuer: AuthOptions.ISSUER,
+                notBefore: now,
+                claims: identity.Claims,
+                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(),
+                    SecurityAlgorithms.HmacSha256)
+            );
             var encodedJwt = new JwtSecurityTokenHandler()
                 .WriteToken(jwt);
 
-            var response = new
-            {
-                token = encodedJwt,
-            };
-            
             // сериализация ответа
-           return Helpers.JsonObj.FormJson("200", response, "");
+            return Json(data: new
+            {
+                token = encodedJwt
+            });
         }
 
         private async Task<ClaimsIdentity> GetIdentity(string username, string password)
         {
-            Teacher person = await userManager.FindByNameAsync(username);
-            if (person != null)
-            {
-                var signInResult = await signManager.PasswordSignInAsync(person, password, false, false);
+            var person = await _userManager.FindByNameAsync(username);
+            if (person == null) return null;
 
-                if (signInResult.Succeeded)
-                {
-                    var claims = new List<Claim>
-                {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.UserName),
-                };
-                    ClaimsIdentity claimsIdentity =
-                    new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                        ClaimsIdentity.DefaultRoleClaimType);
-                    return claimsIdentity;
-                }
-            }
+            var signInResult = await _signManager.PasswordSignInAsync(person, password, false, false);
+
+            if (!signInResult.Succeeded) return null;
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, person.UserName)
+            };
+            var claimsIdentity =
+                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                    ClaimsIdentity.DefaultRoleClaimType);
+            return claimsIdentity;
 
             // если пользователя не найдено
-            return null;
         }
 
         [Authorize("Admin")]
         [HttpPost]
         [Route("register")]
-        public async Task<string> Register([FromBody] Model.ViewModel.UserViewModel data)
+        public async Task<IActionResult> Register([FromBody] UserViewModel data)
         {
-            if (await userManager.FindByNameAsync("qwerty") == null)
-            {
-                Teacher qw = new Teacher() { UserName = data.login };
-                var result = await userManager.CreateAsync(qw, data.password);
-                if(result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
-                else return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
-            }
-            else return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
+            if (await _userManager.FindByNameAsync("qwerty") != null)
+                return Json(400, "", $"User {data.login} already exist");
+
+            var qw = new Teacher {UserName = data.login};
+            var result = await _userManager.CreateAsync(qw, data.password);
+
+            return result.Succeeded
+                ? Json(200, "", $"User {data.login} registred")
+                : Json(400, "", $"Incorrect answer, errors: {result.Errors}");
         }
     }
 }

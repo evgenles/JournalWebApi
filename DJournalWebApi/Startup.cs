@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DJournalWebApi.Date;
+using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using DJournalWebApi.Date;
-using Microsoft.EntityFrameworkCore;
-using DJournalWebApi.Model;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace DJournalWebApi
 {
@@ -37,20 +29,19 @@ namespace DJournalWebApi
             services.AddIdentity<Teacher, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddAuthentication()
-                  .AddJwtBearer(cfg =>
-                  {
-                      cfg.RequireHttpsMetadata = false;
-                      cfg.SaveToken = true;
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.SaveToken = true;
 
-                      cfg.TokenValidationParameters = new TokenValidationParameters()
-                      {
-                          ValidIssuer = AuthOptions.ISSUER,
-                          ValidateLifetime = true,
-                          IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                          ValidateIssuerSigningKey = true
-                      };
-
-                  });
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = AuthOptions.ISSUER,
+                        ValidateLifetime = true,
+                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        ValidateIssuerSigningKey = true
+                    };
+                });
             services.AddMvc();
         }
 
@@ -66,6 +57,7 @@ namespace DJournalWebApi
             app.UseAuthentication();
 
             app.UseStaticFiles();
+
             app.UseMvc();
         }
     }

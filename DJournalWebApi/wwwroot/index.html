@@ -1,108 +1,110 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>JWT в ASP.NET Core Web API</title>
 </head>
 <body>
-    <div class="userInfo" style="display:none;">
-        <p>Вы вошли как: <span class="userName"></span></p>
-        <input type="button" value="Выйти" id="logOut" />
-    </div>
-    <div class="loginForm">
-        <h3>Вход на сайт</h3>
-        <label>Введите email</label><br />
-        <input type="email" id="emailLogin" /> <br /><br />
-        <label>Введите пароль</label><br />
-        <input type="password" id="passwordLogin" /><br /><br />
-        <input type="submit" id="submitLogin" value="Логин" />
-    </div>
-    <div>
-        <input type="submit" id="getDataByLogin" value="Данные по логину" />
-    </div>
-    <div>
-        <input type="submit" id="getDataByRole" value="Данные по роли" />
-    </div>
-    <script src="jquery.min.js"></script>
-    <script>
-        var tokenKey = "accessToken";
-        $('#submitLogin').click(function (e) {
-            e.preventDefault();
-            var dataType = 'application/json; charset=utf-8';
+<div class="userInfo" style="display: none;">
+    <p>
+        Вы вошли как: <span class="userName"></span>
+    </p>
+    <input type="button" value="Выйти" id="logOut"/>
+</div>
+<div class="loginForm">
+    <h3>Вход на сайт</h3>
+    <label>Введите email</label><br/>
+    <input type="email" id="emailLogin"/> <br/><br/>
+    <label>Введите пароль</label><br/>
+    <input type="password" id="passwordLogin"/><br/><br/>
+    <input type="submit" id="submitLogin" value="Логин"/>
+</div>
+<div>
+    <input type="submit" id="getDataByLogin" value="Данные по логину"/>
+</div>
+<div>
+    <input type="submit" id="getDataByRole" value="Данные по роли"/>
+</div>
+<script src="jquery.min.js"></script>
+<script>
+    var tokenKey = "accessToken";
+    $('#submitLogin').click(function(e) {
+        e.preventDefault();
+        const dataType = 'application/json; charset=utf-8';
 
-            var data = {
-                login: 'ivanov',
-                password: 'qQ12345678#'
-            };
+        const data = {
+            login: 'ivanov',
+            password: 'qQ12345678#'
+        };
 
-            $.ajax({
-                type: 'POST',
-                url: '/api/account/login',
-                dataType: 'json',
-                contentType: dataType,
-                data: JSON.stringify(data),
-                success: function (data) {
-                    $('.userName').text(data.username);
-                    $('.userInfo').css('display', 'block');
-                    $('.loginForm').css('display', 'none');
-                    var data1 = JSON.parse(data);
-                    console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: '/api/account/login',
+            dataType: 'json',
+            contentType: dataType,
+            data: JSON.stringify(data),
+            success: function(data) {
+                $('.userName').text(data.username);
+                $('.userInfo').css('display', 'block');
+                $('.loginForm').css('display', 'none');
+                const data1 = JSON.parse(data);
+                console.log(data);
 
-                    console.log(data1);
+                console.log(data1);
 
-                    // сохраняем в хранилище sessionStorage токен доступа
-                    sessionStorage.setItem(tokenKey, data1.data.token);
-                    console.log(data1.data.token);
-                },
-                fail: function (data) {
-                    console.log(data);
-                }
-            })
+                // сохраняем в хранилище sessionStorage токен доступа
+                sessionStorage.setItem(tokenKey, data1.data.token);
+                console.log(data1.data.token);
+            },
+            fail: function(data) {
+                console.log(data);
+            }
         });
+    });
 
-        $('#logOut').click(function (e) {
-            e.preventDefault();
-            $('.loginForm').css('display', 'block');
-            $('.userInfo').css('display', 'none');
-            sessionStorage.removeItem(tokenKey);
+    $('#logOut').click(function(e) {
+        e.preventDefault();
+        $('.loginForm').css('display', 'block');
+        $('.userInfo').css('display', 'none');
+        sessionStorage.removeItem(tokenKey);
+    });
+
+    $('#getDataByLogin').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'GET',
+            url: '/api/sheet/list',
+            beforeSend: function(xhr) {
+
+                const token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+            },
+            success: function(data) {
+                alert(data);
+            },
+            fail: function(data) {
+                console.log(data);
+            }
         });
+    });
+    $('#getDataByRole').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'GET',
+            url: '/api/sheet/select?id=bb523013-bd71-490c-0892-08d51fb6a2af&date=31.10.2017',
+            beforeSend: function(xhr) {
 
-        $('#getDataByLogin').click(function (e) {
-            e.preventDefault();
-            $.ajax({
-                type: 'GET',
-                url: '/api/sheet/list',
-                beforeSend: function (xhr) {
-
-                    var token = sessionStorage.getItem(tokenKey);
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-                },
-                success: function (data) {
-                    alert(data);
-                },
-                fail: function (data) {
-                    console.log(data);
-                }
-            });
+                const token = sessionStorage.getItem(tokenKey);
+                xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+            },
+            success: function(data) {
+                alert(data);
+            },
+            fail: function(data) {
+                console.log(data);
+            }
         });
-        $('#getDataByRole').click(function (e) {
-            e.preventDefault();
-            $.ajax({
-                type: 'GET',
-                url: '/api/sheet/select?id=bb523013-bd71-490c-0892-08d51fb6a2af&date=31.10.2017',
-                beforeSend: function (xhr) {
-
-                    var token = sessionStorage.getItem(tokenKey);
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-                },
-                success: function (data) {
-                    alert(data);
-                },
-                fail: function (data) {
-                    console.log(data);
-                }
-            });
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

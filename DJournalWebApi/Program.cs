@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using DJournalWebApi.Date;
+using DJournalWebApi.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using DJournalWebApi.Date;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DJournalWebApi
 {
@@ -21,17 +17,17 @@ namespace DJournalWebApi
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                var env = services.GetRequiredService<IHostingEnvironment>();
                 var context = services.GetRequiredService<ApplicationDbContext>();
-                var userManager = services.GetRequiredService<UserManager<Model.Teacher>>();
+                var userManager = services.GetRequiredService<UserManager<Teacher>>();
                 Initializer.Initialize(context, userManager).Wait();
             }
+            Console.WriteLine("TeST");
             host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((opt) => { opt.AddJsonFile("appsettings.json"); })
+                .ConfigureAppConfiguration(opt => { opt.AddJsonFile("appsettings.json"); })
                 .UseStartup<Startup>()
                 .Build();
     }
