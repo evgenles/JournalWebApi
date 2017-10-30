@@ -31,13 +31,13 @@
             var dataType = 'application/json; charset=utf-8';
 
             var data = {
-                username: 'qwerty',
+                login: 'ivanov',
                 password: 'qQ12345678#'
             };
 
             $.ajax({
                 type: 'POST',
-                url: '/api/login',
+                url: '/api/account/login',
                 dataType: 'json',
                 contentType: dataType,
                 data: JSON.stringify(data),
@@ -45,9 +45,14 @@
                     $('.userName').text(data.username);
                     $('.userInfo').css('display', 'block');
                     $('.loginForm').css('display', 'none');
+                    var data1 = JSON.parse(data);
+                    console.log(data);
+
+                    console.log(data1);
+
                     // сохраняем в хранилище sessionStorage токен доступа
-                    sessionStorage.setItem(tokenKey, data.data.token);
-                    console.log(data.access_token);
+                    sessionStorage.setItem(tokenKey, data1.data.token);
+                    console.log(data1.data.token);
                 },
                 fail: function (data) {
                     console.log(data);
@@ -66,7 +71,7 @@
             e.preventDefault();
             $.ajax({
                 type: 'GET',
-                url: '/api/values/getlogin',
+                url: '/api/sheet/list',
                 beforeSend: function (xhr) {
 
                     var token = sessionStorage.getItem(tokenKey);

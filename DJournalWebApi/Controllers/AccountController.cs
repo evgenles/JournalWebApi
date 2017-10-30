@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Identity;
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/login")]
+    [Route("api/account")]
     public class AccountController : Controller
     {
         private readonly UserManager<Teacher> userManager;
@@ -28,9 +28,10 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<string> Index([FromBody] Model.ViewModel.UserViewModel data)
+        [Route("login")]
+        public async Task<string> Login([FromBody] Model.ViewModel.UserViewModel data)
         {
-            var identity = await GetIdentity(data.username, data.password);
+            var identity = await GetIdentity(data.login, data.password);
             if (identity == null)
             {
                 return Helpers.JsonObj.FormJson("401", "", "Invalid username or password.");

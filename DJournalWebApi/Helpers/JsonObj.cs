@@ -14,7 +14,7 @@ namespace DJournalWebApi.Helpers
                 data = _data,
                 message = _message
             };
-            var enjs = JsonConvert.SerializeObject(js, new JsonSerializerSettings { Formatting = Formatting.Indented });
+            var enjs = JsonConvert.SerializeObject(js, new JsonSerializerSettings { Formatting = Formatting.None });
             return enjs;
         }
     }
