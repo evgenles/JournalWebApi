@@ -33,7 +33,6 @@ namespace DJournalWebApi
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((opt) => { opt.AddJsonFile("appsettings.json"); })
                 .UseStartup<Startup>()
-
                 .Build();
     }
 }

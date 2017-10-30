@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DJournalWebApi.Controllers
 {
@@ -80,6 +81,21 @@ namespace DJournalWebApi.Controllers
 
             // если пользователя не найдено
             return null;
+        }
+
+        [Authorize("Admin")]
+        [HttpPost]
+        [Route("register")]
+        public async Task<string> Register([FromBody] Model.ViewModel.UserViewModel data)
+        {
+            if (await userManager.FindByNameAsync("qwerty") == null)
+            {
+                Teacher qw = new Teacher() { UserName = data.login };
+                var result = await userManager.CreateAsync(qw, data.password);
+                if(result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
+                else return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
+            }
+            else return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
         }
     }
 }
