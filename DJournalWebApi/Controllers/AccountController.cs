@@ -52,7 +52,6 @@ namespace DJournalWebApi.Controllers
             var response = new
             {
                 token = encodedJwt,
-                username = identity.Name
             };
             
             // сериализация ответа

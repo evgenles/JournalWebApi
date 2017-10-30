@@ -39,7 +39,7 @@ namespace DJournalWebApi.Controllers
         public async Task<string> Select(string id, string date)
         {
             var cells = await context.Cells
-                .Where((cell) => cell.SheetId.ToString() == id && cell.SheetDates.Date.ToShortDateString() == date)
+                .Where((cell) => cell.SheetId.ToString() == id && cell.SheetDates.Date == DateTime.Parse(date))
                 .Select((cell) => new { student = cell.SheetStudent.Student.Name, visitState = cell.VisitState, comment = cell.Comment})
                 .ToListAsync();
             return Helpers.JsonObj.FormJson("200", cells, "");
