@@ -36,7 +36,7 @@ namespace DJournalWebApi
 
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = AuthOptions.ISSUER,
+                        ValidIssuer = AuthOptions.Issuer,
                         ValidateLifetime = true,
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                         ValidateIssuerSigningKey = true
@@ -57,12 +57,12 @@ namespace DJournalWebApi
             app.UseAuthentication();
 
             app.UseStaticFiles();
-            app.UseMvc((routes)=>
+            app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                name: "default",
-                template: "{controller=Home}/{action=Index}");
-                routes.MapSpaFallbackRoute("spa-fallback", new { controller = "home", action = "index" });
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}");
+                routes.MapSpaFallbackRoute("spa-fallback", new {controller = "home", action = "index"});
             });
         }
     }

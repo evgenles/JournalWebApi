@@ -37,10 +37,10 @@ namespace DJournalWebApi.Controllers
             var now = DateTime.UtcNow;
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
-                issuer: AuthOptions.ISSUER,
+                issuer: AuthOptions.Issuer,
                 notBefore: now,
                 claims: identity.Claims,
-                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.Lifetime)),
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(),
                     SecurityAlgorithms.HmacSha256)
             );
@@ -81,12 +81,12 @@ namespace DJournalWebApi.Controllers
         {
             if (await userManager.FindByNameAsync("qwerty") == null)
             {
-                Teacher qw = new Teacher() { UserName = data.login, FullName = data.name };
+                var qw = new Teacher {UserName = data.login, FullName = data.name};
                 var result = await userManager.CreateAsync(qw, data.password);
-                if(result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
-                else return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
+                if (result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
+                return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
             }
-            else return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
+            return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
         }
     }
 }

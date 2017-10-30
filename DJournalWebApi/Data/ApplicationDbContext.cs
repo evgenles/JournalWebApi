@@ -14,7 +14,7 @@ namespace DJournalWebApi.Data
 
         public DbSet<Teacher> Teachers { get; set; }
 #pragma warning disable CS0108 // Member hides inherited member; missing new keyword
-        public DbSet<Role> Roles  { get; set; }
+        public DbSet<Role> Roles { get; set; }
 #pragma warning restore CS0108 // Member hides inherited member; missing new keyword
         public DbSet<Group> Groups { get; set; }
         public DbSet<Cell> Cells { get; set; }
@@ -43,28 +43,28 @@ namespace DJournalWebApi.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Student>()
-                    .HasMany((st) => st.SheetStudents)
-                    .WithOne((s) => s.Student)
-                    .HasForeignKey((s) => s.StudentId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(st => st.SheetStudents)
+                .WithOne(s => s.Student)
+                .HasForeignKey(s => s.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SheetStudents>()
-                    .HasMany((s) => s.Cells)
-                    .WithOne((c) => c.SheetStudent)
-                    .HasForeignKey((c) => c.SheetStudentId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(s => s.Cells)
+                .WithOne(c => c.SheetStudent)
+                .HasForeignKey(c => c.SheetStudentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SheetDates>()
-                    .HasMany((s) => s.Cells)
-                    .WithOne((c) => c.SheetDates)
-                    .HasForeignKey((c) => c.SheetDatesId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(s => s.Cells)
+                .WithOne(c => c.SheetDates)
+                .HasForeignKey(c => c.SheetDatesId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Sheet>()
-                    .HasMany((s) => s.Cells)
-                    .WithOne((c) => c.Sheet)
-                    .HasForeignKey((c) => c.SheetId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(s => s.Cells)
+                .WithOne(c => c.Sheet)
+                .HasForeignKey(c => c.SheetId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Sheet>()
                 .HasMany(s => s.SheetDates)
                 .WithOne(c => c.Sheet)
@@ -76,16 +76,16 @@ namespace DJournalWebApi.Data
                 .HasForeignKey(c => c.SheetId)
                 .OnDelete(DeleteBehavior.Restrict);
             builder.Entity<Sheet>()
-                    .HasMany((s) => s.GroupSheets)
-                    .WithOne((c) => c.Sheet)
-                    .HasForeignKey((c) => c.SheetId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(s => s.GroupSheets)
+                .WithOne(c => c.Sheet)
+                .HasForeignKey(c => c.SheetId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Group>()
-                    .HasMany((g) => g.Students)
-                    .WithOne((s) => s.Group)
-                    .HasForeignKey((s) => s.GroupId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(g => g.Students)
+                .WithOne(s => s.Group)
+                .HasForeignKey(s => s.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

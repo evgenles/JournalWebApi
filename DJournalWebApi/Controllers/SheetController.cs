@@ -44,10 +44,12 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("delete")]
-        public async Task<IActionResult> Delete([FromBody]string sheet_id)
+        public async Task<IActionResult> Delete([FromBody] string sheet_id)
         {
-            var toDelete = await _context.Sheets.SingleOrDefaultAsync((s) => s.SheetId.ToString() == sheet_id &&
-                s.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var toDelete = await _context.Sheets.SingleOrDefaultAsync(s => s.SheetId.ToString() == sheet_id &&
+                                                                           s.TeacherId.ToString() == User
+                                                                               .FindFirst(ClaimTypes.NameIdentifier)
+                                                                               .Value);
             if (toDelete == null) return Json(400, "", $"Sheet {sheet_id} not exist");
 
             _context.Sheets.Remove(toDelete);
