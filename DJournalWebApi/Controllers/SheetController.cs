@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DJournalWebApi.Date;
+using DJournalWebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +41,19 @@ namespace DJournalWebApi.Controllers
                 })
                 .ToListAsync();
             return Json(200, cells);
+        }
+
+        [Route("delete")]
+        public async Task<IActionResult> Delete([FromBody]string sheet_id)
+        {
+            var toDelete = await _context.Sheets.SingleOrDefaultAsync((s) => s.SheetId.ToString() == sheet_id &&
+                s.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (toDelete == null) return Json(400, "", $"Sheet {sheet_id} not exist");
+
+            _context.Sheets.Remove(toDelete);
+            _context.SaveChanges();
+
+            return Json(200, "", $"Sheet {toDelete.Name} removed");
         }
     }
 }

@@ -5,7 +5,7 @@ using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace DJournalWebApi.Date
+namespace DJournalWebApi.Data
 {
     public class Initializer
     {

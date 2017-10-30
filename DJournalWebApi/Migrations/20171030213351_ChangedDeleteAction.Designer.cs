@@ -12,8 +12,8 @@ using System;
 namespace DJournalWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20171030071606_Inital")]
-    partial class Inital
+    [Migration("20171030213351_ChangedDeleteAction")]
+    partial class ChangedDeleteAction
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -179,6 +179,8 @@ namespace DJournalWebApi.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
+                    b.Property<string>("FullName");
+
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
@@ -340,17 +342,17 @@ namespace DJournalWebApi.Migrations
                     b.HasOne("DJournalWebApi.Model.SheetDates", "SheetDates")
                         .WithMany("Cells")
                         .HasForeignKey("SheetDatesId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DJournalWebApi.Model.Sheet", "Sheet")
                         .WithMany("Cells")
                         .HasForeignKey("SheetId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DJournalWebApi.Model.SheetStudents", "SheetStudent")
                         .WithMany("Cells")
                         .HasForeignKey("SheetStudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DJournalWebApi.Model.GroupSheet", b =>
@@ -362,7 +364,7 @@ namespace DJournalWebApi.Migrations
                     b.HasOne("DJournalWebApi.Model.Sheet", "Sheet")
                         .WithMany("GroupSheets")
                         .HasForeignKey("SheetId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DJournalWebApi.Model.Sheet", b =>
@@ -396,7 +398,7 @@ namespace DJournalWebApi.Migrations
                     b.HasOne("DJournalWebApi.Model.Student", "Student")
                         .WithMany("SheetStudents")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DJournalWebApi.Model.Student", b =>
@@ -404,7 +406,7 @@ namespace DJournalWebApi.Migrations
                     b.HasOne("DJournalWebApi.Model.Group", "Group")
                         .WithMany("Students")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

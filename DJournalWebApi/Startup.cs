@@ -1,4 +1,4 @@
-﻿using DJournalWebApi.Date;
+﻿using DJournalWebApi.Data;
 using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,8 +57,13 @@ namespace DJournalWebApi
             app.UseAuthentication();
 
             app.UseStaticFiles();
-
-            app.UseMvc();
+            app.UseMvc((routes)=>
+            {
+                routes.MapRoute(
+                name: "default",
+                template: "{controller=Home}/{action=Index}");
+                routes.MapSpaFallbackRoute("spa-fallback", new { controller = "home", action = "index" });
+            });
         }
     }
 }

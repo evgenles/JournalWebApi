@@ -15,5 +15,6 @@ namespace DJournalWebApi.Model
         }
 
         public ICollection<Sheet> Sheets { get; set; }
+        public string FullName { get; set; }
     }
 }

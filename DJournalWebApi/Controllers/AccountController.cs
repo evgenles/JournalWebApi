@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DJournalWebApi.Date;
+using DJournalWebApi.Data;
 using DJournalWebApi.Model;
 using DJournalWebApi.Model.ViewModel;
 using Microsoft.AspNetCore.Authorization;
@@ -74,20 +74,19 @@ namespace DJournalWebApi.Controllers
             // если пользователя не найдено
         }
 
-        [Authorize("Admin")]
+        //[Authorize("Admin")]
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] UserViewModel data)
         {
-            if (await _userManager.FindByNameAsync("qwerty") != null)
-                return Json(400, "", $"User {data.login} already exist");
-
-            var qw = new Teacher {UserName = data.login};
-            var result = await _userManager.CreateAsync(qw, data.password);
-
-            return result.Succeeded
-                ? Json(200, "", $"User {data.login} registred")
-                : Json(400, "", $"Incorrect answer, errors: {result.Errors}");
+            if (await userManager.FindByNameAsync("qwerty") == null)
+            {
+                Teacher qw = new Teacher() { UserName = data.login, FullName = data.name };
+                var result = await userManager.CreateAsync(qw, data.password);
+                if(result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
+                else return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
+            }
+            else return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
         }
     }
 }

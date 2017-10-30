@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using DJournalWebApi.Date;
+using DJournalWebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DJournalWebApi.Controllers

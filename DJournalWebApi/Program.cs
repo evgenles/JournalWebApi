@@ -1,5 +1,5 @@
 ﻿using System;
-using DJournalWebApi.Date;
+using DJournalWebApi.Data;
 using DJournalWebApi.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
