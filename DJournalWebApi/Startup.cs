@@ -66,7 +66,13 @@ namespace DJournalWebApi
             app.UseAuthentication();
 
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseMvc((routes)=>
+            {
+                routes.MapRoute(
+                name: "default",
+                template: "{controller=Home}/{action=Index}");
+                routes.MapSpaFallbackRoute("spa-fallback", new { controller = "home", action = "index" });
+            });
         }
     }
 }

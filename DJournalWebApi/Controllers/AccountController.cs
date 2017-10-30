@@ -83,14 +83,14 @@ namespace DJournalWebApi.Controllers
             return null;
         }
 
-        [Authorize("Admin")]
+        //[Authorize("Admin")]
         [HttpPost]
         [Route("register")]
         public async Task<string> Register([FromBody] Model.ViewModel.UserViewModel data)
         {
             if (await userManager.FindByNameAsync("qwerty") == null)
             {
-                Teacher qw = new Teacher() { UserName = data.login };
+                Teacher qw = new Teacher() { UserName = data.login, FullName = data.name };
                 var result = await userManager.CreateAsync(qw, data.password);
                 if(result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
                 else return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");

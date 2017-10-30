@@ -44,5 +44,19 @@ namespace DJournalWebApi.Controllers
                 .ToListAsync();
             return Helpers.JsonObj.FormJson("200", cells, "");
         }
+
+        [Authorize]
+        [Route("delete")]
+        public async Task<string> Delete([FromBody]string sheet_id)
+        {
+            var toDelete = await context.Sheets.SingleOrDefaultAsync((s) => s.SheetId.ToString() == sheet_id &&
+                s.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (toDelete != null) {
+                context.Sheets.Remove(toDelete);
+                context.SaveChanges();
+                return Helpers.JsonObj.FormJson("200", "", $"Sheet {toDelete.Name} removed");
+            }
+            return Helpers.JsonObj.FormJson("400", "", $"Sheet {sheet_id} not exist");
+        }
     }
 }

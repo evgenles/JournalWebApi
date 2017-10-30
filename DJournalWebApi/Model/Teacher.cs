@@ -11,6 +11,6 @@ namespace DJournalWebApi.Model
         public Teacher():base() { }
         public Teacher(string userName) : base(userName) { }
         public ICollection<Sheet> Sheets { get; set; }
-
+        public string FullName { get; set; }
     }
 }
