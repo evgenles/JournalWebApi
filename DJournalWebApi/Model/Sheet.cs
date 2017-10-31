@@ -12,7 +12,7 @@ namespace DJournalWebApi.Model
 
         public Teacher Teacher { get; set; }
         public Subject Subject { get; set; }
-        public ICollection<Cell> Cells { get; set; }
+        public List<Cell> Cells { get; set; } = new List<Cell>();
         public ICollection<GroupSheet> GroupSheets { get; set; }
         public ICollection<SheetDates> SheetDates { get; set; }
         public ICollection<SheetStudents> SheetStudents { get; set; }
