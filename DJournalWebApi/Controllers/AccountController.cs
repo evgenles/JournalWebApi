@@ -79,14 +79,14 @@ namespace DJournalWebApi.Controllers
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] UserViewModel data)
         {
-            if (await userManager.FindByNameAsync("qwerty") == null)
+            if (await _userManager.FindByNameAsync("qwerty") == null)
             {
                 var qw = new Teacher {UserName = data.login, FullName = data.name};
-                var result = await userManager.CreateAsync(qw, data.password);
-                if (result.Succeeded) return Helpers.JsonObj.FormJson("200", "", $"User {data.login} registred");
-                return Helpers.JsonObj.FormJson("400", "", $"Uncorrect unswer, errors: {result.Errors}");
+                var result = await _userManager.CreateAsync(qw, data.password);
+                if (result.Succeeded) return Json(data:"", message: $"User {data.login} registred");
+                return Json(400, "", $"Uncorrect unswer, errors: {result.Errors}");
             }
-            return Helpers.JsonObj.FormJson("400", "", $"User {data.login} already exist");
+            return Json(400, "", $"User {data.login} already exist");
         }
     }
 }
