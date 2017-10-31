@@ -19,9 +19,11 @@ namespace DJournalWebApi
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<ApplicationDbContext>();
                 var userManager = services.GetRequiredService<UserManager<Teacher>>();
-                Initializer.Initialize(context, userManager).Wait();
+                var roleManager = services.GetRequiredService<RoleManager<Role>>();
+
+                var config = services.GetRequiredService<IConfiguration>();
+                Initializer.Initialize(context, userManager,roleManager, config).Wait();
             }
-            Console.WriteLine("TeST");
             host.Run();
         }
 

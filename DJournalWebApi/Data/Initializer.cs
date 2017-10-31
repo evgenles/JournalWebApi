@@ -4,16 +4,32 @@ using System.Threading.Tasks;
 using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DJournalWebApi.Data
 {
     public class Initializer
     {
-        public static async Task Initialize(ApplicationDbContext appDbContext, UserManager<Teacher> userManager)
+        public static async Task Initialize(ApplicationDbContext appDbContext, UserManager<Teacher> userManager, RoleManager<Role> roleManager, IConfiguration config)
         {
             appDbContext.Database.Migrate();
+            string username = config["Accounts:Admins:Name"];
+            string fullname = config["Accounts:Admins:FullName"];
+            string password = config["Accounts:Admins:Password"];
+            string rolename = config["Accounts:Admins:RoleName"];
 
-            if (await userManager.FindByNameAsync("qwerty") == null)
+            if (roleManager.FindByNameAsync(rolename) == null)
+            {
+                await roleManager.CreateAsync(new Role { Name = rolename });
+            }
+            if (userManager.FindByNameAsync(username) == null)
+            {
+                var admin = new Teacher { UserName = username, FullName = fullname };
+                await userManager.CreateAsync(admin, password);
+                await userManager.AddToRoleAsync(admin, rolename);
+            }
+            
+                if (await userManager.FindByNameAsync("qwerty") == null)
             {
                 var qw = new Teacher {UserName = "qwerty"};
                 var result = await userManager.CreateAsync(qw, "qQ12345678#");

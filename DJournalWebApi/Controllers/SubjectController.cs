@@ -16,9 +16,9 @@ namespace DJournalWebApi.Controllers
             _context = context;
         }
 
-        private async Task<string> Index([FromBody] List<string> groups)
-        {
-            return "";
-        }
+        //private async Task<string> Index([FromBody] List<string> groups)
+        //{
+        //    return "";
+        //}
     }
 }
