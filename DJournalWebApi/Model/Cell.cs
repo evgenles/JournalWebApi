@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DJournalWebApi.Model
 {
@@ -14,5 +15,18 @@ namespace DJournalWebApi.Model
         public Sheet Sheet { get; set; }
         public SheetStudents SheetStudent { get; set; }
         public SheetDates SheetDates { get; set; }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var first = obj as Cell;
+            if (first == null)
+                return false;
+            return first.SheetStudentId == SheetStudentId;
+        }
     }
 }

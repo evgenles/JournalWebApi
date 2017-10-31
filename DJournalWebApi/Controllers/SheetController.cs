@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DJournalWebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DJournalWebApi.Model.ViewModel;
 
 namespace DJournalWebApi.Controllers
 {
@@ -23,7 +24,7 @@ namespace DJournalWebApi.Controllers
         {
             var sheets = await _context.Sheets
                 .Where(sheet => sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
-                .Select(sheet => new {name = sheet.Name, id = sheet.SheetId})
+                .Select(sheet => new { name = sheet.Name, id = sheet.SheetId })
                 .ToListAsync();
 
             return Json(200, sheets);
@@ -41,6 +42,35 @@ namespace DJournalWebApi.Controllers
                 })
                 .ToListAsync();
             return Json(200, cells);
+        }
+
+        public async Task<IActionResult> UpdateSheet([FromBody] SheetViewModel sheetWithData)
+        {
+            var dbSheet = await _context
+                .Sheets
+                .Where(sheet => sheet.SheetId == sheetWithData.SheetId &&
+                sheet.TeacherId.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                .FirstOrDefaultAsync();
+
+            var date = dbSheet.SheetDates.Where(item => item.Date == sheetWithData.CellsDates).FirstOrDefault();
+                        
+            var missed = sheetWithData.CellDataList.Except(dbSheet.Cells);
+            dbSheet.Cells.AddRange(missed.Select(item => new Model.Cell
+            {
+                Comment = item.Comment,
+                SheetStudent = item.SheetStudent,
+                VisitState = item.VisitState,
+                SheetDates = date
+            }));
+
+            sheetWithData.CellDataList.ForEach(item =>
+            {
+                var buff = dbSheet.Cells.FirstOrDefault(cell => cell.SheetStudentId == item.SheetStudentId);
+                buff.VisitState = item.VisitState;
+                buff.Comment = item.Comment;
+            });
+            await _context.SaveChangesAsync();
+            return Json(200);
         }
 
         [Route("delete")]
