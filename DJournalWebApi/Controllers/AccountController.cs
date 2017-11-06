@@ -54,6 +54,7 @@ namespace DJournalWebApi.Controllers
             });
         }
 
+        [HttpGet]
         private async Task<ClaimsIdentity> GetIdentity(string username, string password)
         {
             var person = await _userManager.FindByNameAsync(username);

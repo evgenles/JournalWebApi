@@ -39,6 +39,7 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("userlist")]
+        [HttpGet]
         public async Task<IActionResult> UserList()
         {
             return Json(data: await _userManager.Users.Select(user => new

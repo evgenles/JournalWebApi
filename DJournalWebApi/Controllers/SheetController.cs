@@ -24,6 +24,7 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("list")]
+        [HttpGet]
         public async Task<IActionResult> List(string teacherlogin = null)
         {
             var sheets = await _context.Sheets
@@ -37,6 +38,7 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("select")]
+        [HttpGet]
         public async Task<IActionResult> Select(Guid id, string date)
         {
             var cells = await _context.Cells
@@ -56,6 +58,7 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("updatesheet")]
+        [HttpPost]
         public async Task<IActionResult> UpdateSheet([FromBody] SheetViewModel sheetWithData)
         {
             var dbSheet = await _context
