@@ -10,6 +10,6 @@ namespace DJournalWebApi.Model
         public Guid? SheetId { get; set; }
 
         public Sheet Sheet { get; set; }
-        public ICollection<Cell> Cells { get; set; }
+        public List<Cell> Cells { get; set; }
     }
 }

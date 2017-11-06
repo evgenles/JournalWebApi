@@ -18,11 +18,11 @@ namespace DJournalWebApi.Data
             string password = config["Accounts:Admins:Password"];
             string rolename = config["Accounts:Admins:RoleName"];
 
-            if (roleManager.FindByNameAsync(rolename) == null)
+            if (await roleManager.FindByNameAsync(rolename) == null)
             {
                 await roleManager.CreateAsync(new Role { Name = rolename });
             }
-            if (userManager.FindByNameAsync(username) == null)
+            if (await userManager.FindByNameAsync(username) == null)
             {
                 var admin = new Teacher { UserName = username, FullName = fullname };
                 await userManager.CreateAsync(admin, password);
@@ -125,7 +125,6 @@ namespace DJournalWebApi.Data
                 appDbContext.Cells.AddRange(
                     new Cell
                     {
-                        SheetId = appDbContext.Sheets.Single(sheet => sheet.Name == "Hello word,941").SheetId,
                         SheetDatesId = appDbContext.SheetDates.First(dates => dates.Date == new DateTime(2017, 10, 31))
                             .SheetDatesId,
                         SheetStudentId = appDbContext.SheetStudents
@@ -137,7 +136,6 @@ namespace DJournalWebApi.Data
                     },
                     new Cell
                     {
-                        SheetId = appDbContext.Sheets.Single(sheet => sheet.Name == "Hello word,941").SheetId,
                         SheetDatesId = appDbContext.SheetDates.First(dates => dates.Date == new DateTime(2017, 10, 31))
                             .SheetDatesId,
                         SheetStudentId = appDbContext.SheetStudents
@@ -151,7 +149,6 @@ namespace DJournalWebApi.Data
                     },
                     new Cell
                     {
-                        SheetId = appDbContext.Sheets.Single(sheet => sheet.Name == "Hello word,941").SheetId,
                         SheetDatesId = appDbContext.SheetDates.First(dates => dates.Date == new DateTime(2017, 10, 30))
                             .SheetDatesId,
                         SheetStudentId = appDbContext.SheetStudents
@@ -163,7 +160,6 @@ namespace DJournalWebApi.Data
                     },
                     new Cell
                     {
-                        SheetId = appDbContext.Sheets.Single(sheet => sheet.Name == "Hello my word,940P").SheetId,
                         SheetDatesId = appDbContext.SheetDates.First(dates => dates.Date == new DateTime(2017, 10, 31))
                             .SheetDatesId,
                         SheetStudentId = appDbContext.SheetStudents

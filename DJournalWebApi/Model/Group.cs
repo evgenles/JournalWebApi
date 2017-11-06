@@ -10,5 +10,6 @@ namespace DJournalWebApi.Model
         public string NewName { get; set; }
 
         public ICollection<Student> Students { get; set; }
+        public ICollection<GroupSheet> GroupSheets { get; set; }
     }
 }

@@ -2,10 +2,12 @@
 using DJournalWebApi.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace DJournalWebApi
 {
@@ -23,17 +25,17 @@ namespace DJournalWebApi
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString(
+                    Environment.OSVersion.Platform==PlatformID.Unix
+                    ?"NixDefaultConnection":"DefaultConnection"));
             });
 
             services.AddIdentity<Teacher, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddAuthentication()
-                .AddJwtBearer(cfg =>
+            services.AddAuthentication().AddJwtBearer(cfg =>
                 {
                     cfg.RequireHttpsMetadata = false;
                     cfg.SaveToken = true;
-
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = AuthOptions.Issuer,
@@ -42,6 +44,21 @@ namespace DJournalWebApi
                         ValidateIssuerSigningKey = true
                     };
                 });
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(20);
+                options.Lockout.MaxFailedAccessAttempts = 6;
+
+
+                options.User.RequireUniqueEmail = false;
+            });
+
             services.AddMvc();
         }
 

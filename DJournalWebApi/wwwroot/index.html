@@ -1,110 +1,290 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>JWT в ASP.NET Core Web API</title>
 </head>
+
 <body>
-<div class="userInfo" style="display: none;">
-    <p>
-        Вы вошли как: <span class="userName"></span>
-    </p>
-    <input type="button" value="Выйти" id="logOut"/>
-</div>
-<div class="loginForm">
-    <h3>Вход на сайт</h3>
-    <label>Введите email</label><br/>
-    <input type="email" id="emailLogin"/> <br/><br/>
-    <label>Введите пароль</label><br/>
-    <input type="password" id="passwordLogin"/><br/><br/>
-    <input type="submit" id="submitLogin" value="Логин"/>
-</div>
-<div>
-    <input type="submit" id="getDataByLogin" value="Данные по логину"/>
-</div>
-<div>
-    <input type="submit" id="getDataByRole" value="Данные по роли"/>
-</div>
-<script src="jquery.min.js"></script>
-<script>
-    var tokenKey = "accessToken";
-    $('#submitLogin').click(function(e) {
-        e.preventDefault();
-        const dataType = 'application/json; charset=utf-8';
+    <div>
+        <input type="submit" id="submitLoginT" value="Login as teacher" />
+    </div>
+    <div>
+        <input type="submit" id="submitLoginA" value="Login as admin" />
+    </div>
+    <div>
+        <input type="submit" id="journalList" value="Получить список журналов" />
+    </div>
+    <div>
+        <input type="submit" id="registerUser" value="Зарегестрировать пользователя" />
+    </div>
+    <div>
+        <input type="submit" id="getUsersList" value="Получить список пользователей" />
+    </div>
+    <div>
+        <input type="submit" id="selectCells" value="Получить список клеток на дату" />
+    </div>
+    <div>
+        <input type="submit" id="sheetDelete" value="Удалить журнал" />
+    </div>
+    <div>
+        <input type="submit" id="sheetCreate" value="Создать журнал" />
+    </div>
+    <div>
+        <input type="submit" id="import" value="Импорт данных" />
+    </div>
+    <script src="jquery.min.js"></script>
+    <script>
+        var tokenKey = "accessToken";
+        $('#import').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
 
-        const data = {
-            login: 'ivanov',
-            password: 'qQ12345678#'
-        };
+            const data = [{
+                oldname: '942',
+                newname: 'ПЗ1412',
+                students: [{
+                    name: 'sergey',
+                    number: 121
+                }, {
+                    name: 'alexandr',
+                    number: 212
+                }]
+            }, {
+                oldname: '943',
+                newname: 'КС1411',
+                students: [{
+                    name: 'vadim',
+                    number: 123
+                }, {
+                    name: 'mark',
+                    number: 412
+                }]
+            }];
 
-        $.ajax({
-            type: 'POST',
-            url: '/api/account/login',
-            dataType: 'json',
-            contentType: dataType,
-            data: JSON.stringify(data),
-            success: function(data) {
-                $('.userName').text(data.username);
-                $('.userInfo').css('display', 'block');
-                $('.loginForm').css('display', 'none');
-                const data1 = JSON.parse(data);
-                console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: '/api/import/importstudentsandgroup',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(data),
+                beforeSend: function(xhr) {
 
-                console.log(data1);
-
-                // сохраняем в хранилище sessionStorage токен доступа
-                sessionStorage.setItem(tokenKey, data1.data.token);
-                console.log(data1.data.token);
-            },
-            fail: function(data) {
-                console.log(data);
-            }
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
         });
-    });
+        $('#sheetCreate').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
 
-    $('#logOut').click(function(e) {
-        e.preventDefault();
-        $('.loginForm').css('display', 'block');
-        $('.userInfo').css('display', 'none');
-        sessionStorage.removeItem(tokenKey);
-    });
+            const data = {
+                subjectType: 'lecture',
+                sheetName: 'Hey',
+                groupsNewName: ['941', '940П'],
+                semestr: 1,
+                addGroup: true
+            };
 
-    $('#getDataByLogin').click(function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'GET',
-            url: '/api/sheet/list',
-            beforeSend: function(xhr) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/sheet/create',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(data),
+                beforeSend: function(xhr) {
 
-                const token = sessionStorage.getItem(tokenKey);
-                xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-            },
-            success: function(data) {
-                alert(data);
-            },
-            fail: function(data) {
-                console.log(data);
-            }
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
         });
-    });
-    $('#getDataByRole').click(function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'GET',
-            url: '/api/sheet/select?id=bb523013-bd71-490c-0892-08d51fb6a2af&date=31.10.2017',
-            beforeSend: function(xhr) {
+        $('#sheetDelete').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
+            $.ajax({
+                type: 'POST',
+                url: '/api/sheet/delete',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(sessionStorage.getItem("journalid")),
+                beforeSend: function(xhr) {
 
-                const token = sessionStorage.getItem(tokenKey);
-                xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-            },
-            success: function(data) {
-                alert(data);
-            },
-            fail: function(data) {
-                console.log(data);
-            }
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
         });
-    });
-</script>
+        $('#selectCells').click(function(e) {
+            e.preventDefault();
+            var journalid = sessionStorage.getItem("journalid");
+
+            $.ajax({
+                type: 'GET',
+                url: '/api/sheet/select?id=' + journalid + "&date=31.10.2017",
+                beforeSend: function(xhr) {
+
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+        $('#submitLoginT').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
+
+            const data = {
+                login: 'qwerty',
+                password: 'qQ12345678#'
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/account/login',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(data),
+                success: function(data) {
+                    $('.userName').text(data.username);
+                    $('.userInfo').css('display', 'block');
+                    $('.loginForm').css('display', 'none');
+                    console.log(data);
+
+                    // сохраняем в хранилище sessionStorage токен доступа
+                    sessionStorage.setItem(tokenKey, data.data.token);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+        $('#submitLoginA').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
+
+            const data = {
+                login: 'Admin',
+                password: 'qQ12345678#'
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/account/login',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(data),
+                success: function(data) {
+                    $('.userName').text(data.username);
+                    $('.userInfo').css('display', 'block');
+                    $('.loginForm').css('display', 'none');
+                    console.log(data);
+
+                    // сохраняем в хранилище sessionStorage токен доступа
+                    sessionStorage.setItem(tokenKey, data.data.token);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+
+        $('#logOut').click(function(e) {
+            e.preventDefault();
+            $('.loginForm').css('display', 'block');
+            $('.userInfo').css('display', 'none');
+            sessionStorage.removeItem(tokenKey);
+        });
+
+        $('#journalList').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'GET',
+                url: '/api/sheet/list',
+                beforeSend: function(xhr) {
+
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data.data.length > 0) sessionStorage.setItem("journalid", data.data[0].id);
+
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+
+        $('#getUsersList').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'GET',
+                url: '/api/admin/userlist',
+                beforeSend: function(xhr) {
+
+                    const token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+                },
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+        $('#registerUser').click(function(e) {
+            e.preventDefault();
+            const dataType = 'application/json; charset=utf-8';
+
+            const data = {
+                login: 'Evgenles',
+                password: 'qwerty123',
+                name: 'Evgen Lesovnikov',
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/admin/register',
+                dataType: 'json',
+                contentType: dataType,
+                data: JSON.stringify(data),
+                success: function(data) {
+                    console.log(data);
+                },
+                fail: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

@@ -36,11 +36,6 @@ namespace DJournalWebApi.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            builder.Entity<Subject>()
-                .HasMany(su => su.Sheets)
-                .WithOne(sh => sh.Subject)
-                .HasForeignKey(sh => sh.SubjectId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Student>()
                 .HasMany(st => st.SheetStudents)
@@ -61,11 +56,6 @@ namespace DJournalWebApi.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Sheet>()
-                .HasMany(s => s.Cells)
-                .WithOne(c => c.Sheet)
-                .HasForeignKey(c => c.SheetId)
-                .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Sheet>()
                 .HasMany(s => s.SheetDates)
                 .WithOne(c => c.Sheet)
                 .HasForeignKey(c => c.SheetId)
@@ -85,6 +75,12 @@ namespace DJournalWebApi.Data
                 .HasMany(g => g.Students)
                 .WithOne(s => s.Group)
                 .HasForeignKey(s => s.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Group>()
+                .HasMany(g => g.GroupSheets)
+                .WithOne(gs => gs.Group)
+                .HasForeignKey(gs => gs.GroupId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

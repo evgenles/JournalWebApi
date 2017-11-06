@@ -74,19 +74,6 @@ namespace DJournalWebApi.Controllers
             // если пользователя не найдено
         }
 
-        //[Authorize("Admin")]
-        [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> Register([FromBody] UserViewModel data)
-        {
-            if (await _userManager.FindByNameAsync("qwerty") == null)
-            {
-                var qw = new Teacher {UserName = data.login, FullName = data.name};
-                var result = await _userManager.CreateAsync(qw, data.password);
-                if (result.Succeeded) return Json(data:"", message: $"User {data.login} registred");
-                return Json(400, "", $"Uncorrect unswer, errors: {result.Errors}");
-            }
-            return Json(400, "", $"User {data.login} already exist");
-        }
+
     }
 }

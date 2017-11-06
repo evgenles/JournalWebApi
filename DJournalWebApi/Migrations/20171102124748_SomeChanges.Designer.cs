@@ -12,9 +12,10 @@ using System;
 namespace DJournalWebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171102124748_SomeChanges")]
+    partial class SomeChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -356,9 +357,8 @@ namespace DJournalWebApi.Migrations
             modelBuilder.Entity("DJournalWebApi.Model.GroupSheet", b =>
                 {
                     b.HasOne("DJournalWebApi.Model.Group", "Group")
-                        .WithMany("GroupSheets")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("DJournalWebApi.Model.Sheet", "Sheet")
                         .WithMany("GroupSheets")

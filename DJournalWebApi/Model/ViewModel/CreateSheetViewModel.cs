@@ -7,9 +7,11 @@ namespace DJournalWebApi.Model.ViewModel
 {
     public class CreateSheetViewModel
     {
-        public Guid subjectId { get; set; }
+        public string subjectType { get; set; }
         public string sheetName { get; set; }
-        public List<Guid> groupsIds { get; set; }
+        public List<string> groupsNewName { get; set; }
+        public int semestr { get; set; }
+        public bool? addGroup { get; set; } = null;
         //
         //
     }
