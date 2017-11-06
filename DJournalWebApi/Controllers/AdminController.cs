@@ -38,14 +38,13 @@ namespace DJournalWebApi.Controllers
             return Json(400, "", $"User {data.login} already exist");
         }
 
-        [HttpGet]
         [Route("userlist")]
         public async Task<IActionResult> UserList()
         {
             return Json(data: await _userManager.Users.Select(user => new
             {
                 login = user.UserName,
-                journalCount = _context.Sheets.Count(sheet => sheet.TeacherId == user.Id)
+                sheetCount = _context.Sheets.Count(sheet => sheet.TeacherId == user.Id)
             }).ToListAsync());
         }
 

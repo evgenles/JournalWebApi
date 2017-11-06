@@ -24,11 +24,13 @@ namespace DJournalWebApi.Controllers
         }
 
         [Route("list")]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string teacherlogin = null)
         {
             var sheets = await _context.Sheets
-                .Where(sheet => sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
-                .Select(sheet => new { name = sheet.Name, id = sheet.SheetId })
+                .Where(sheet => (User.IsInRole("Admin") &&
+                                ((teacherlogin != null) ? sheet.Teacher.UserName == teacherlogin : true))
+                                || sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                .Select(sheet => new { teacherlogin = sheet.Teacher.UserName, name = sheet.Name, id = sheet.SheetId })
                 .ToListAsync();
 
             return Json(200, sheets);
@@ -38,7 +40,11 @@ namespace DJournalWebApi.Controllers
         public async Task<IActionResult> Select(Guid id, string date)
         {
             var cells = await _context.Cells
-                .Where(cell => cell.SheetDates.SheetId == id && cell.SheetDates.Date == DateTime.Parse(date))
+                .Where(cell =>
+                    (User.IsInRole("Admin") ||
+                    cell.SheetDates.Sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value) &&
+                    cell.SheetDates.SheetId == id &&
+                    cell.SheetDates.Date == DateTime.Parse(date))
                 .Select(cell => new
                 {
                     student = cell.SheetStudent.Student.Name,
@@ -117,7 +123,7 @@ namespace DJournalWebApi.Controllers
             {
                 var notInGroup = data.groupsNewName.SelectMany(gnn =>
                      _context.Groups
-                     .Include(gr=>gr.Students)
+                     .Include(gr => gr.Students)
                      .Where(gr => (gr.NewName == gnn || gr.OldName == gnn))
                      .ToList()
                      .Except(
@@ -171,7 +177,7 @@ namespace DJournalWebApi.Controllers
             foreach (var groupname in data.groupsNewName)
             {
                 Group group = _context.Groups
-                .Include(gr=>gr.Students)
+                .Include(gr => gr.Students)
                 .FirstOrDefault(gr => gr.NewName == groupname || gr.OldName == groupname);
                 if (group != null)
                 {
