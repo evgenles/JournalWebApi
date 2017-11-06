@@ -28,10 +28,17 @@ namespace DJournalWebApi.Controllers
         public async Task<IActionResult> List(string teacherlogin = null)
         {
             var sheets = await _context.Sheets
+                .Include(sheet=>sheet.SheetDates)
                 .Where(sheet => (User.IsInRole("Admin") &&
                                 ((teacherlogin != null) ? sheet.Teacher.UserName == teacherlogin : true))
                                 || sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
-                .Select(sheet => new { teacherlogin = sheet.Teacher.UserName, name = sheet.Name, id = sheet.SheetId })
+                .Select(sheet => new
+                {
+                    teacherlogin = sheet.Teacher.UserName,
+                    name = sheet.Name,
+                    id = sheet.SheetId,
+                    dates = sheet.SheetDates.Select(sd => sd.Date.ToShortDateString()).ToList()
+                })
                 .ToListAsync();
 
             return Json(200, sheets);
@@ -39,8 +46,9 @@ namespace DJournalWebApi.Controllers
 
         [Route("select")]
         [HttpGet]
-        public async Task<IActionResult> Select(Guid id, string date)
+        public async Task<IActionResult> Select(Guid? id, string date)
         {
+            if (id == null || date == null) return Json(400, "", "Id or date not specified");
             var cells = await _context.Cells
                 .Where(cell =>
                     (User.IsInRole("Admin") ||
@@ -117,11 +125,6 @@ namespace DJournalWebApi.Controllers
                     sh.Year == DateTime.Now.Year &&
                     sh.TeacherId == thisTeacherId
                 );
-            ///Препод создал лист для 941 группі на предмет Трансляторі.
-            ///После этого решил добавить на тот же год в тот же семместр предмет трансляторы на группу 940П че делаем?
-            ///не факт что они вместе занимаются
-            ///но и не факт что отдельно
-            ///кто ж знает этого шинкаря
             if (existsheet != null)
             {
                 var notInGroup = data.groupsNewName.SelectMany(gnn =>
