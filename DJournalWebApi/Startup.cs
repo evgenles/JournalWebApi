@@ -1,5 +1,6 @@
 ﻿using DJournalWebApi.Data;
 using DJournalWebApi.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -33,7 +34,11 @@ namespace DJournalWebApi
 
             services.AddIdentity<Teacher, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddAuthentication().AddJwtBearer(cfg =>
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(cfg =>
                 {
                     cfg.RequireHttpsMetadata = false;
                     cfg.SaveToken = true;
@@ -42,7 +47,9 @@ namespace DJournalWebApi
                         ValidIssuer = AuthOptions.Issuer,
                         ValidateLifetime = true,
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        ValidateIssuerSigningKey = true
+                        ValidateIssuerSigningKey = true,
+                        ValidateAudience = false,
+                        ValidateIssuer = false
                     };
                 });
             services.Configure<IdentityOptions>(options =>

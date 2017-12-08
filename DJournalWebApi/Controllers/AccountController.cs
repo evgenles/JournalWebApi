@@ -65,7 +65,8 @@ namespace DJournalWebApi.Controllers
             if (!signInResult.Succeeded) return null;
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, person.UserName)
+                new Claim(ClaimsIdentity.DefaultNameClaimType, person.UserName),
+                new Claim(ClaimTypes.NameIdentifier, person.Id.ToString())
             };
             var claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
