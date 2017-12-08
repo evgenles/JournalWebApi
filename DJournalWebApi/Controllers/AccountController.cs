@@ -15,7 +15,6 @@ using System.Linq;
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/account")]
     public class AccountController : ApiController
     {
         private readonly SignInManager<Teacher> _signManager;
@@ -30,7 +29,6 @@ namespace DJournalWebApi.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [Route("login")]
         public async Task<IActionResult> Login([FromBody] UserViewModel data)
         {
             var identity = await GetIdentity(data.login, data.password);

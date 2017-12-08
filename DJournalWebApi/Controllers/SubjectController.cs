@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/subject")]
     public class SubjectController : Controller
     {
         private readonly ApplicationDbContext _context;

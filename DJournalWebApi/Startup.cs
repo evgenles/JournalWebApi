@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace DJournalWebApi
                     Environment.OSVersion.Platform==PlatformID.Unix
                     ?"NixDefaultConnection":"DefaultConnection"));
             });
-
+            
             services.AddIdentity<Teacher, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddAuthentication(o =>
@@ -67,11 +68,12 @@ namespace DJournalWebApi
                 options.User.RequireUniqueEmail = false;
             });
 
+            services.Configure<RouteOptions>(opt => opt.LowercaseUrls = true);
             services.AddMvc();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v2", new Info { Title = "My API", Version = "v2" });
                 c.AddSecurityDefinition("Bearer", new ApiKeyScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -100,7 +102,7 @@ namespace DJournalWebApi
             app.UseSwaggerUI(c =>
             {
                 c.ShowRequestHeaders();
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v2/swagger.json", "My API V2");
             });
 
             app.UseMvc(routes =>

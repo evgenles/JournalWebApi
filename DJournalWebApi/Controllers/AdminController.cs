@@ -12,7 +12,6 @@ namespace DJournalWebApi.Controllers
 {
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
-    [Route("api/admin")]
     public class AdminController : ApiController
     {
         private readonly UserManager<Teacher> _userManager;
@@ -25,7 +24,6 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("register")]
         public async Task<IActionResult> Register([FromBody] UserViewModel data)
         {
             if (await _userManager.FindByNameAsync(data.login) == null)
@@ -38,7 +36,6 @@ namespace DJournalWebApi.Controllers
             return Json(400, "", $"User {data.login} already exist");
         }
 
-        [Route("userlist")]
         [HttpGet]
         public async Task<IActionResult> UserList()
         {

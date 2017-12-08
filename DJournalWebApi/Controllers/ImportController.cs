@@ -13,7 +13,6 @@ namespace DJournalWebApi.Controllers
 {
     [Authorize(Roles = "Admin")]
     [Produces("application/json")]
-    [Route("api/import")]
     public class ImportController : ApiController
     {
         private readonly ApplicationDbContext _context;
@@ -24,7 +23,6 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("importstudentsandgroup")]
         public IActionResult ImportStudentsAndGroup([FromBody] List<ImportViewModel> data)
         {
             //TODO: need rewrite (move student from group to writed group)

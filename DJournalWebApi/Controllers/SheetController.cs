@@ -12,7 +12,6 @@ using System.Collections.Generic;
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/sheet")]
     public class SheetController : ApiController
     {
         private readonly ApplicationDbContext _context;
@@ -23,7 +22,6 @@ namespace DJournalWebApi.Controllers
             _context = context;
         }
 
-        [Route("list")]
         [HttpGet]
         public async Task<IActionResult> List(string teacherlogin = null)
         {
@@ -44,7 +42,6 @@ namespace DJournalWebApi.Controllers
             return Json(200, sheets);
         }
 
-        [Route("select")]
         [HttpGet]
         public async Task<IActionResult> Select(Guid? id, string date)
         {
@@ -66,7 +63,6 @@ namespace DJournalWebApi.Controllers
             return Json(200, cells);
         }
 
-        [Route("updatesheet")]
         [HttpPost]
         public async Task<IActionResult> UpdateSheet([FromBody] SheetViewModel sheetWithData)
         {
@@ -98,7 +94,6 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("delete")]
         public async Task<IActionResult> Delete([FromBody] SheetIdViewModel sheet)
         {
             var toDelete = await _context.Sheets.SingleOrDefaultAsync(s => s.SheetId ==sheet.sheetid);
@@ -113,7 +108,6 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
         public async Task<IActionResult> Create([FromBody]CreateSheetViewModel data)
         {
             var thisTeacherId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
