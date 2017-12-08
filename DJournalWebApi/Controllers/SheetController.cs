@@ -50,6 +50,7 @@ namespace DJournalWebApi.Controllers
         {
             if (id == null || date == null) return Json(400, "", "Id or date not specified");
             var cells = await _context.Cells
+                .Include(cell=>cell.SheetDates)
                 .Where(cell =>
                     (User.IsInRole("Admin") ||
                     cell.SheetDates.Sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value) &&
@@ -98,12 +99,10 @@ namespace DJournalWebApi.Controllers
 
         [HttpPost]
         [Route("delete")]
-        public async Task<IActionResult> Delete([FromBody] Guid sheetid)
+        public async Task<IActionResult> Delete([FromBody] SheetIdViewModel sheet)
         {
-            var toDelete = await _context.Sheets.SingleOrDefaultAsync(s => s.SheetId == sheetid &&
-                                                                           s.TeacherId.ToString() == User
-                                                                               .FindFirstValue(ClaimTypes.NameIdentifier));
-            if (toDelete == null) return Json(400, "", $"Sheet {sheetid} not exist");
+            var toDelete = await _context.Sheets.SingleOrDefaultAsync(s => s.SheetId ==sheet.sheetid);
+            if (toDelete == null) return Json(400, "", $"Sheet {sheet.sheetid} not exist");
 
             _context.Sheets.Remove(toDelete);
             _context.SheetDates.RemoveRange(_context.SheetDates.Where(sd => sd.SheetId == toDelete.SheetId));

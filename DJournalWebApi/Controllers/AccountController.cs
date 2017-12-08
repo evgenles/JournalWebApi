@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 
 namespace DJournalWebApi.Controllers
 {
@@ -19,11 +20,12 @@ namespace DJournalWebApi.Controllers
     {
         private readonly SignInManager<Teacher> _signManager;
         private readonly UserManager<Teacher> _userManager;
-
-        public AccountController(UserManager<Teacher> userManager, SignInManager<Teacher> signManager)
+        private readonly RoleManager<Role> _roleManager;
+        public AccountController(UserManager<Teacher> userManager, SignInManager<Teacher> signManager, RoleManager<Role> roleManager)
         {
             _userManager = userManager;
             _signManager = signManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -68,12 +70,12 @@ namespace DJournalWebApi.Controllers
                 new Claim(ClaimsIdentity.DefaultNameClaimType, person.UserName),
                 new Claim(ClaimTypes.NameIdentifier, person.Id.ToString())
             };
+            claims.AddRange((await _userManager.GetRolesAsync(person))
+                .Select(r=>new Claim(ClaimTypes.Role,r)));
             var claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
+                    ClaimTypes.Role);
             return claimsIdentity;
-
-            // если пользователя не найдено
         }
 
 
