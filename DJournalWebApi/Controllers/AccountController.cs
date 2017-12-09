@@ -19,12 +19,10 @@ namespace DJournalWebApi.Controllers
     {
         private readonly SignInManager<Teacher> _signManager;
         private readonly UserManager<Teacher> _userManager;
-        private readonly RoleManager<Role> _roleManager;
-        public AccountController(UserManager<Teacher> userManager, SignInManager<Teacher> signManager, RoleManager<Role> roleManager)
+        public AccountController(UserManager<Teacher> userManager, SignInManager<Teacher> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;
-            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -54,7 +52,6 @@ namespace DJournalWebApi.Controllers
             });
         }
 
-        [HttpGet]
         private async Task<ClaimsIdentity> GetIdentity(string username, string password)
         {
             var person = await _userManager.FindByNameAsync(username);

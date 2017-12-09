@@ -23,39 +23,38 @@ namespace DJournalWebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult ImportStudentsAndGroup([FromBody] List<ImportViewModel> data)
+        public async Task<IActionResult> ImportStudentsAndGroup([FromBody] List<ImportViewModel> data)
         {
-            //TODO: need rewrite (move student from group to writed group)
-            data.ForEach(gr =>
-                 {
-                     Group t = _context.Groups.FirstOrDefault(gr1 => gr1.OldName == gr.oldname || gr1.NewName == gr.newname);
-                     bool exist = true;
-                     if (t == null)
-                     {
-                         t = new Group()
-                         {
-                             OldName = gr.oldname,
-                             NewName = gr.newname,
-                         };
-                         exist = false;
-                     }
-                     t.Students = gr.students.Select(st =>
-                            {
-                                if (_context.Students.FirstOrDefault(st1 => st1.Number == st.number) is Student s)
-                                {
-                                    return s;
-                                }
-                                return new Student
-                                {
-                                    Name = st.name,
-                                    Number = st.number
+            foreach (var importgroup in data)
+            {
+                Group t = (await _context.Groups
+                    .FirstOrDefaultAsync(group => group.OldName == importgroup.oldname || group.NewName == importgroup.newname));
+                if (t == null)
+                {
+                    t = new Group { OldName = importgroup.oldname, NewName = importgroup.newname };
+                    _context.Groups.Add(t);
+                }
+                else
+                {
+                    t.OldName = importgroup.oldname;
+                    t.NewName = importgroup.newname;
+                }
 
-                                };
-                            }).ToList();
-                     if (!exist) _context.Groups.Add(t);
-                     _context.SaveChanges();
-                 });
-
+                var templist = importgroup.students.Select(s => s.number);
+                List<Student> stFromDatabase =
+                    await _context.Students.Where(st=>templist.Contains(st.Number))
+                            .ToListAsync();
+                t.Students = new HashSet<Student>(stFromDatabase);
+                foreach (var newst in importgroup.students.Where(st => !stFromDatabase.Exists(a => a.Number == st.number)))
+                {
+                    t.Students.Add(new Student
+                    {
+                        Name = newst.name,
+                        Number = newst.number
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
             return Json(data: "");
         }
 

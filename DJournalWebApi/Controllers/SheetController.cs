@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DJournalWebApi.Model.ViewModel;
 using DJournalWebApi.Model;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace DJournalWebApi.Controllers
 {
@@ -26,16 +27,17 @@ namespace DJournalWebApi.Controllers
         public async Task<IActionResult> List(string teacherlogin = null)
         {
             var sheets = await _context.Sheets
-                .Include(sheet=>sheet.SheetDates)
                 .Where(sheet => (User.IsInRole("Admin") &&
                                 ((teacherlogin != null) ? sheet.Teacher.UserName == teacherlogin : true))
                                 || sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
-                .Select(sheet => new
+                .Include(sheet=>sheet.SheetDates)
+                .Select(sheet => new SheetListViewModel
                 {
                     teacherlogin = sheet.Teacher.UserName,
                     name = sheet.Name,
                     id = sheet.SheetId,
-                    dates = sheet.SheetDates.Select(sd => sd.Date.ToShortDateString()).ToList()
+                    dates = sheet.
+                        SheetDates.Select(sd => sd.Date.ToShortDateString()).ToList()
                 })
                 .ToListAsync();
 
@@ -52,7 +54,8 @@ namespace DJournalWebApi.Controllers
                     (User.IsInRole("Admin") ||
                     cell.SheetDates.Sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value) &&
                     cell.SheetDates.SheetId == id &&
-                    cell.SheetDates.Date == DateTime.Parse(date))
+                    cell.SheetDates.Date == DateTime.Parse(date,new CultureInfo("ru-RU"))
+                    )
                 .Select(cell => new
                 {
                     student = cell.SheetStudent.Student.Name,
