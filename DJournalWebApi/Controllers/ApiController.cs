@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DJournalWebApi.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DJournalWebApi.Controllers
 {
     [Authorize]
+    [ApiExeptionFilter]
     [Route("api/[controller]/[action]")]
     public class ApiController : Controller
     {

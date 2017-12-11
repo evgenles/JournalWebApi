@@ -9,6 +9,6 @@ namespace DJournalWebApi.Model.ViewModel
     {
         public DateTime CellsDates { get; set; }
         public Guid SheetId { get; set; }
-        public List<Cell> CellDataList { get; set; }
+        public List<CellsViewModel> CellDataList { get; set; }
     }
 }

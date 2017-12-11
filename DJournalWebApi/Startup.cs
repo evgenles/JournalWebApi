@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
+using DJournalWebApi.Services.Interfaces;
+using DJournalWebApi.Services;
 using System;
 
 namespace DJournalWebApi
@@ -53,6 +55,9 @@ namespace DJournalWebApi
                         ValidateIssuer = false
                     };
                 });
+
+            services.AddTransient<ISheetService, SheetService>();
+
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;

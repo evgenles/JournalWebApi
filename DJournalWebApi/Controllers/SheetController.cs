@@ -9,37 +9,31 @@ using DJournalWebApi.Model.ViewModel;
 using DJournalWebApi.Model;
 using System.Collections.Generic;
 using System.Globalization;
+using DJournalWebApi.Services.Interfaces;
 
 namespace DJournalWebApi.Controllers
 {
     [Produces("application/json")]
     public class SheetController : ApiController
     {
+        private ISheetService _sheetService;
         private readonly ApplicationDbContext _context;
 
-        public SheetController(ApplicationDbContext context)
+        public SheetController(ISheetService sheetService, ApplicationDbContext context)
         {
-            // Vlad: сервисы наше все
             _context = context;
+            _sheetService = sheetService;
         }
 
         [HttpGet]
         public async Task<IActionResult> List(string teacherlogin = null)
         {
-            var sheets = await _context.Sheets
-                .Where(sheet => (User.IsInRole("Admin") &&
-                                ((teacherlogin != null) ? sheet.Teacher.UserName == teacherlogin : true))
-                                || sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value)
-                .Include(sheet=>sheet.SheetDates)
-                .Select(sheet => new SheetListViewModel
-                {
-                    teacherlogin = sheet.Teacher.UserName,
-                    name = sheet.Name,
-                    id = sheet.SheetId,
-                    dates = sheet.
-                        SheetDates.Select(sd => sd.Date.ToShortDateString()).ToList()
-                })
-                .ToListAsync();
+            bool isAdmin = User.IsInRole("Admin");
+
+            var sheets = await _sheetService.GetSheetsForTeacher(
+                User.FindFirst(ClaimTypes.NameIdentifier).Value,
+                User.IsInRole("Admin"),
+                teacherlogin);
 
             return Json(200, sheets);
         }
@@ -48,21 +42,12 @@ namespace DJournalWebApi.Controllers
         public async Task<IActionResult> Select(Guid? id, string date)
         {
             if (id == null || date == null) return Json(400, "", "Id or date not specified");
-            var cells = await _context.Cells
-                .Include(cell=>cell.SheetDates)
-                .Where(cell =>
-                    (User.IsInRole("Admin") ||
-                    cell.SheetDates.Sheet.TeacherId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier).Value) &&
-                    cell.SheetDates.SheetId == id &&
-                    cell.SheetDates.Date == DateTime.Parse(date,new CultureInfo("ru-RU"))
-                    )
-                .Select(cell => new
-                {
-                    student = cell.SheetStudent.Student.Name,
-                    visitState = cell.VisitState,
-                    comment = cell.Comment
-                })
-                .ToListAsync();
+
+            var cells = await _sheetService.GetCellsForSheet(id,
+                date,
+                User.FindFirst(ClaimTypes.NameIdentifier).Value,
+                User.IsInRole("Admin"));
+
             return Json(200, cells);
         }
 
@@ -77,20 +62,51 @@ namespace DJournalWebApi.Controllers
 
             var date = dbSheet.SheetDates.Where(item => item.Date == sheetWithData.CellsDates).FirstOrDefault();
 
-            var missed = sheetWithData.CellDataList.Except(date.Cells);
-            date.Cells.AddRange(missed.Select(item => new Model.Cell
+            //ADD
+
+            //
+            var presentCells = new List<CellsViewModel>();
+            foreach (var d in date.Cells)
             {
-                Comment = item.Comment,
-                SheetStudent = item.SheetStudent,
-                VisitState = item.VisitState,
-                SheetDates = date
-            }));
+                presentCells.Add(
+                    new CellsViewModel
+                    {
+                        CellComment = d.Comment,
+                        StudentName = d.SheetStudent.Student.Name,
+                        VisitState = d.VisitState
+                    });
+            }
+
+            var missed = sheetWithData.CellDataList.Except(presentCells);
+
+            var newCells = new List<Cell>();
+            foreach (var item in missed)
+            {
+                var student = await _context
+                    .Students
+                    .SingleOrDefaultAsync(st => st.Name == item.StudentName);
+
+                var shSt = await _context
+                    .SheetStudents
+                    .SingleOrDefaultAsync(shtstd => shtstd.SheetId == sheetWithData.SheetId && shtstd.Student == student);
+
+                newCells.Add(
+                    new Cell
+                    {
+                        SheetStudent = shSt,
+                        VisitState = item.VisitState,
+                        Comment = item.CellComment
+                    });
+            }
+
+            date.Cells.AddRange(newCells);
+            //
 
             sheetWithData.CellDataList.ForEach(item =>
             {
-                var buff = date.Cells.FirstOrDefault(cell => cell.SheetStudentId == item.SheetStudentId);
+                var buff = date.Cells.FirstOrDefault(cell => cell.SheetStudent.Student.Name == item.StudentName);
                 buff.VisitState = item.VisitState;
-                buff.Comment = item.Comment;
+                buff.Comment = item.CellComment;
             });
             await _context.SaveChangesAsync();
             return Json(200);
@@ -99,15 +115,11 @@ namespace DJournalWebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] SheetIdViewModel sheet)
         {
-            var toDelete = await _context.Sheets.SingleOrDefaultAsync(s => s.SheetId ==sheet.sheetid);
-            if (toDelete == null) return Json(400, "", $"Sheet {sheet.sheetid} not exist");
+            string result = await _sheetService.DeleteSheet(sheet);
+            if (result != null)
+                return Json(400, "", $"Sheet {sheet.sheetid} not exist");
 
-            _context.Sheets.Remove(toDelete);
-            _context.SheetDates.RemoveRange(_context.SheetDates.Where(sd => sd.SheetId == toDelete.SheetId));
-            _context.SheetStudents.RemoveRange(_context.SheetStudents.Where(sd => sd.SheetId == toDelete.SheetId));
-            _context.SaveChanges();
-
-            return Json(200, "", $"Sheet {toDelete.Name} removed");
+            return Json(200, "", $"Sheet {result} removed");
         }
 
         [HttpPost]
